@@ -2,6 +2,9 @@
 log/log.txt
 logs/
 
+# Uploaded files
+files/
+
 # Go build artifacts
 *.exe
 *.dll

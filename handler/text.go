@@ -18,6 +18,16 @@ const (
 	TextInstructionsFunc2  = "• File processing - Extract information from your spreadsheets\n"
 	TextInstructionsFunc3  = "• Data display - View your Excel data in a readable format\n\n"
 	TextInstructionsTip    = "💡 To get started, use /start command or simply send me an Excel file!"
+
+	TextFileReceived      = "✅ File received successfully!\n\n"
+	TextFileName          = "📄 File name: %s\n"
+	TextFileSize          = "📊 File size: %.2f KB\n"
+	TextFileProcessing    = "Processing your Excel file..."
+	TextFileInvalidType   = "❌ Invalid file type!\n\nPlease send an Excel file (.xls or .xlsx format)."
+	TextFileDownloadError = "❌ Error downloading file. Please try again."
+	TextFileSaveError     = "❌ Error saving file. Please try again."
+	TextFileReadError     = "❌ Error reading Excel file. Please make sure it's a valid Excel file."
+	TextFileProcessed     = "✅ File processed successfully!\n\nHere is the extracted content:"
 )
 
 func GetWelcomeText(username string) string {
