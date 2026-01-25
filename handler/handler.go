@@ -119,14 +119,8 @@ func (h *Handler) handleDefaultText(update tgbotapi.Update, bot *tgbotapi.BotAPI
 func (h *Handler) handleFileMessages(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	chatID := update.Message.Chat.ID
 	document := update.Message.Document
-	state := h.getState(chatID)
 
 	log.Printf("Received file from chat %d: %s", chatID, document.FileName)
-
-	if state != StateStart {
-		log.Printf("User not in START state, ignoring file")
-		return
-	}
 
 	if !h.isValidExcelFile(document.FileName) {
 		log.Printf("Invalid file type received: %s", document.FileName)
