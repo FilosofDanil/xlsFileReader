@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	TelegramBotToken = ""
+	TelegramBotToken = "8390270520:AAFe6be2LWMg60yPyxsJEwwZFBH5rNlbDJA"
 	MaxRetries       = 3
 	RetryDelay       = 15 * time.Second
 )
