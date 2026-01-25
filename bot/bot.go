@@ -14,16 +14,14 @@ type BotStatus struct {
 }
 
 type Service struct {
-	token        string
-	statusChan   chan<- BotStatus
-	messagesChan chan tgbotapi.Update
+	token      string
+	statusChan chan<- BotStatus
 }
 
 func NewService(token string, statusChan chan<- BotStatus) *Service {
 	return &Service{
-		token:        token,
-		statusChan:   statusChan,
-		messagesChan: make(chan tgbotapi.Update, 100),
+		token:      token,
+		statusChan: statusChan,
 	}
 }
 
@@ -32,12 +30,12 @@ func (s *Service) Start(handleMessage func(tgbotapi.Update, *tgbotapi.BotAPI)) e
 
 	bot, err := tgbotapi.NewBotAPI(s.token)
 	if err != nil {
-		s.notifyStatus("failed", err, "Failed to create bot instance")
+		s.notifyStatus(StatusFailed, err, "Failed to create bot instance")
 		return fmt.Errorf("failed to create bot: %w", err)
 	}
 
 	log.Printf("Bot authorized on account: %s", bot.Self.UserName)
-	s.notifyStatus("started", nil, fmt.Sprintf("Bot started successfully as @%s", bot.Self.UserName))
+	s.notifyStatus(StatusStarted, nil, fmt.Sprintf("Bot started successfully as @%s", bot.Self.UserName))
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -55,7 +53,7 @@ func (s *Service) Start(handleMessage func(tgbotapi.Update, *tgbotapi.BotAPI)) e
 		handleMessage(update, bot)
 	}
 
-	s.notifyStatus("stopped", nil, "Bot stopped receiving updates")
+	s.notifyStatus(StatusStopped, nil, "Bot stopped receiving updates")
 	return nil
 }
 

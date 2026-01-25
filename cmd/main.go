@@ -3,19 +3,32 @@ package main
 import (
 	"example/hello/bot"
 	"example/hello/handler"
+	"example/hello/logger"
 	"log"
 	"time"
 )
 
 const (
-	TelegramBotToken = "8390270520:AAFe6be2LWMg60yPyxsJEwwZFBH5rNlbDA"
+	TelegramBotToken = ""
 	MaxRetries       = 3
 	RetryDelay       = 15 * time.Second
 )
 
 func main() {
+	logger.Init()
 	log.Println("Application starting...")
 
+	stopChan := make(chan struct{})
+
+	go supervisor(stopChan)
+
+	select {
+	case <-stopChan:
+		log.Println("Received stop signal. Shutting down application.")
+	}
+}
+
+func supervisor(stopChan chan<- struct{}) {
 	statusChan := make(chan bot.BotStatus, 10)
 	failureCount := 0
 
@@ -30,7 +43,7 @@ func main() {
 			if err != nil {
 				log.Printf("Bot crashed with error: %v", err)
 				statusChan <- bot.BotStatus{
-					Status:  "crashed",
+					Status:  bot.StatusCrashed,
 					Error:   err,
 					Message: "Bot encountered an error",
 				}
@@ -42,13 +55,13 @@ func main() {
 		select {
 		case status := <-statusChan:
 			switch status.Status {
-			case "started":
+			case bot.StatusStarted:
 				log.Printf("Bot status: %s - %s", status.Status, status.Message)
 				failureCount = 0
-			case "failed", "crashed":
+			case bot.StatusFailed, bot.StatusCrashed:
 				log.Printf("Bot status: %s - %s (Error: %v)", status.Status, status.Message, status.Error)
 				crashed = true
-			case "stopped":
+			case bot.StatusStopped:
 				log.Printf("Bot status: %s - %s", status.Status, status.Message)
 				crashed = true
 			}
