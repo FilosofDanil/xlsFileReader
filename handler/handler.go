@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/extrame/xls"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/xuri/excelize/v2"
 )
@@ -217,38 +218,102 @@ func (h *Handler) downloadAndSaveFile(fileURL, fileName string) (string, error) 
 }
 
 func (h *Handler) readExcelFile(filePath string) (string, error) {
+	lowerPath := strings.ToLower(filePath)
+
+	if strings.HasSuffix(lowerPath, ".xls") {
+		return h.readXlsFile(filePath)
+	}
+
+	return h.readXlsxFile(filePath)
+}
+
+func (h *Handler) readXlsxFile(filePath string) (string, error) {
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
 		return "", fmt.Errorf("failed to open Excel file: %w", err)
 	}
 	defer f.Close()
 
-	var content strings.Builder
+	var results []string
+	targetText := "ББС ІНШУРАНС"
 
 	sheetList := f.GetSheetList()
 	for _, sheetName := range sheetList {
-		content.WriteString(fmt.Sprintf("=== Sheet: %s ===\n\n", sheetName))
-
 		rows, err := f.GetRows(sheetName)
 		if err != nil {
 			log.Printf("Error reading sheet %s: %v", sheetName, err)
 			continue
 		}
 
-		for rowIndex, row := range rows {
-			content.WriteString(fmt.Sprintf("Row %d: ", rowIndex+1))
+		for _, row := range rows {
 			for colIndex, cell := range row {
-				if colIndex > 0 {
-					content.WriteString(" | ")
+				if strings.Contains(cell, targetText) {
+					if colIndex+2 < len(row) {
+						firstValue := row[colIndex+1]
+						secondValue := row[colIndex+2]
+						combined := firstValue + "-" + secondValue
+						results = append(results, combined)
+						log.Printf("Found match in sheet %s: %s", sheetName, combined)
+					}
+					break
 				}
-				content.WriteString(cell)
 			}
-			content.WriteString("\n")
 		}
-		content.WriteString("\n")
 	}
 
-	return content.String(), nil
+	if len(results) == 0 {
+		return "No matching data found for 'ББС ІНШУРАНС'", nil
+	}
+
+	content := strings.Join(results, ",\n")
+	return content, nil
+}
+
+func (h *Handler) readXlsFile(filePath string) (string, error) {
+	xlsFile, err := xls.Open(filePath, "utf-8")
+	if err != nil {
+		return "", fmt.Errorf("failed to open XLS file: %w", err)
+	}
+
+	var results []string
+	targetText := "ББС ІНШУРАНС"
+
+	for sheetIndex := 0; sheetIndex < xlsFile.NumSheets(); sheetIndex++ {
+		sheet := xlsFile.GetSheet(sheetIndex)
+		if sheet == nil {
+			continue
+		}
+
+		maxRow := int(sheet.MaxRow)
+		for rowIndex := 0; rowIndex <= maxRow; rowIndex++ {
+			row := sheet.Row(rowIndex)
+			if row == nil {
+				continue
+			}
+
+			maxCol := row.LastCol()
+			for colIndex := row.FirstCol(); colIndex < maxCol; colIndex++ {
+				cellContent := row.Col(colIndex)
+				if strings.Contains(cellContent, targetText) {
+					if colIndex+2 < maxCol {
+						firstValue := row.Col(colIndex + 1)
+						secondValue := row.Col(colIndex + 2)
+						combined := firstValue + "-" + secondValue
+						results = append(results, combined)
+						log.Printf("Found match in sheet %s: %s", sheet.Name, combined)
+					}
+					break
+				}
+			}
+		}
+	}
+
+	if len(results) == 0 {
+		return "No matching data found for 'ББС ІНШУРАНС'", nil
+	}
+
+	content := strings.Join(results, ",\n")
+	return content, nil
 }
 
 func (h *Handler) sendTextFileToUser(bot *tgbotapi.BotAPI, chatID int64, content string) error {
