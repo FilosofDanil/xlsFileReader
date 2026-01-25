@@ -37,7 +37,7 @@ func (h *Handler) handleCommandMessages(update tgbotapi.Update, bot *tgbotapi.Bo
 		h.handleStartCommand(update, bot)
 	default:
 		log.Printf("Unknown command: %s", command)
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Unknown command. Use /start to begin.")
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, TextUnknownCommand)
 		bot.Send(msg)
 	}
 }
@@ -51,14 +51,7 @@ func (h *Handler) handleStartCommand(update tgbotapi.Update, bot *tgbotapi.BotAP
 
 	h.setState(chatID, StateStart)
 
-	welcomeText := "Hello, " + username + "! 👋\n\n"
-	welcomeText += "Welcome to the XLS File Reader Bot!\n"
-	welcomeText += "I'm here to help you process Excel files.\n\n"
-	welcomeText += "📋 Available functions:\n"
-	welcomeText += "• Send me an Excel file (.xls, .xlsx) to read and process\n"
-	welcomeText += "• I will extract and display the data for you\n"
-	welcomeText += "• Use /start to see this message again"
-
+	welcomeText := GetWelcomeText(username)
 	msg := tgbotapi.NewMessage(chatID, welcomeText)
 
 	if _, err := bot.Send(msg); err != nil {
@@ -91,14 +84,7 @@ func (h *Handler) handleStartStateText(update tgbotapi.Update, bot *tgbotapi.Bot
 		username = update.Message.From.UserName
 	}
 
-	welcomeText := "Hello, " + username + "! 👋\n\n"
-	welcomeText += "Welcome to the XLS File Reader Bot!\n"
-	welcomeText += "I'm here to help you process Excel files.\n\n"
-	welcomeText += "📋 Available functions:\n"
-	welcomeText += "• Send me an Excel file (.xls, .xlsx) to read and process\n"
-	welcomeText += "• I will extract and display the data for you\n"
-	welcomeText += "• Use /start to see this message again"
-
+	welcomeText := GetWelcomeText(username)
 	msg := tgbotapi.NewMessage(chatID, welcomeText)
 
 	if _, err := bot.Send(msg); err != nil {
@@ -109,14 +95,7 @@ func (h *Handler) handleStartStateText(update tgbotapi.Update, bot *tgbotapi.Bot
 func (h *Handler) handleDefaultText(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	chatID := update.Message.Chat.ID
 
-	instructionsText := "📖 Bot Instructions\n\n"
-	instructionsText += "This bot helps you read and process Excel files.\n\n"
-	instructionsText += "📋 Functions:\n"
-	instructionsText += "• Send Excel files (.xls, .xlsx) - I will read and display the data\n"
-	instructionsText += "• File processing - Extract information from your spreadsheets\n"
-	instructionsText += "• Data display - View your Excel data in a readable format\n\n"
-	instructionsText += "💡 To get started, use /start command or simply send me an Excel file!"
-
+	instructionsText := GetInstructionsText()
 	msg := tgbotapi.NewMessage(chatID, instructionsText)
 
 	if _, err := bot.Send(msg); err != nil {
