@@ -259,7 +259,7 @@ func (h *Handler) readXlsxFile(filePath string) (string, error) {
 		return "No matching data found for 'ББС ІНШУРАНС'", nil
 	}
 
-	content := strings.Join(results, ",\n")
+	content := h.generateSQLScript(results)
 	return content, nil
 }
 
@@ -306,8 +306,69 @@ func (h *Handler) readXlsFile(filePath string) (string, error) {
 		return "No matching data found for 'ББС ІНШУРАНС'", nil
 	}
 
-	content := strings.Join(results, ",\n")
+	content := h.generateSQLScript(results)
 	return content, nil
+}
+
+func (h *Handler) generateSQLScript(contracts []string) string {
+	var sql strings.Builder
+
+	// SQL SELECT clause
+	sql.WriteString("SELECT \n")
+	sql.WriteString("    sort_order.number AS 'Номер договору',\n")
+	sql.WriteString("    dbo.getCagentFullName(c.id_acquisitor) AS 'Аквізитор',\n")
+	sql.WriteString("    dbo.getCagentFullName(c.id_responsible) AS 'Відповідальна особа',\n")
+	sql.WriteString("    (\n")
+	sql.WriteString("        SELECT \n")
+	sql.WriteString("            CASE \n")
+	sql.WriteString("                WHEN sch.id_parent IS NULL THEN ISNULL(sch.name, '') \n")
+	sql.WriteString("                ELSE ISNULL(\n")
+	sql.WriteString("                    (SELECT csch.name FROM sale_channel csch WHERE csch.id = sch.id_parent), \n")
+	sql.WriteString("                    ''\n")
+	sql.WriteString("                ) \n")
+	sql.WriteString("            END \n")
+	sql.WriteString("        FROM sale_channel sch \n")
+	sql.WriteString("        WHERE sch.id = c.id_saleChannel\n")
+	sql.WriteString("    ) AS 'Канал продажів',\n")
+	sql.WriteString("    (\n")
+	sql.WriteString("        SELECT \n")
+	sql.WriteString("            CASE \n")
+	sql.WriteString("                WHEN sch.id_parent IS NULL THEN '' \n")
+	sql.WriteString("                ELSE ISNULL(sch.name, '') \n")
+	sql.WriteString("            END \n")
+	sql.WriteString("        FROM sale_channel sch \n")
+	sql.WriteString("        WHERE sch.id = c.id_saleChannel\n")
+	sql.WriteString("    ) AS 'Підканал продажів',\n")
+	sql.WriteString("    ISNULL(div.name, '') AS 'Обліковий підрозділ',\n")
+	sql.WriteString("    (\n")
+	sql.WriteString("        SELECT \n")
+	sql.WriteString("            CASE \n")
+	sql.WriteString("                WHEN h_div.id_parent IS NULL THEN '' \n")
+	sql.WriteString("                ELSE ISNULL(p_div.name, '') \n")
+	sql.WriteString("            END \n")
+	sql.WriteString("        FROM division p_div \n")
+	sql.WriteString("        WHERE p_div.id = h_div.id_parent\n")
+	sql.WriteString("    ) AS 'Вищестоящий підрозділ'\n")
+	sql.WriteString("FROM \n")
+	sql.WriteString("    (VALUES \n")
+
+	// VALUES clause with contracts
+	for index, contract := range contracts {
+		if index > 0 {
+			sql.WriteString(",\n")
+		}
+		sql.WriteString(fmt.Sprintf("        ('EP-%s', %d)", contract, index))
+	}
+
+	// Closing SQL
+	sql.WriteString("\n    ) AS sort_order(number, sort_seq)\n")
+	sql.WriteString("LEFT JOIN contract c ON c.number = sort_order.number\n")
+	sql.WriteString("LEFT JOIN division div ON div.id = c.id_division\n")
+	sql.WriteString("LEFT JOIN helement h_div ON h_div.id = div.id\n")
+	sql.WriteString("ORDER BY \n")
+	sql.WriteString("    sort_order.sort_seq;")
+
+	return sql.String()
 }
 
 func (h *Handler) sendTextFileToUser(bot *tgbotapi.BotAPI, chatID int64, content string) error {
