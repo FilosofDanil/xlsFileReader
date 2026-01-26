@@ -10,6 +10,7 @@ files/
 *.dll
 *.so
 *.dylib
+bot
 
 # Test binary, built with `go test -c`
 *.test
@@ -22,4 +23,19 @@ vendor/
 
 # Go workspace file
 go.work
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
 

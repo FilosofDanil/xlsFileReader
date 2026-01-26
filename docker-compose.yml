@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  xls-reader-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xls-reader-bot
+    restart: unless-stopped
+    
+    # Mount volumes for persistent data
+    volumes:
+      - ./files:/app/files
+      - ./logs:/app/logs
+      - ./log:/app/log
+    
+    # Environment variables (optional - can override in .env file)
+    environment:
+      - TZ=Europe/Kiev
+    
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # Health check (optional)
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "bot"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+

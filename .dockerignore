@@ -1,0 +1,56 @@
+# Git
+.git
+.gitignore
+
+# Logs
+log/
+logs/
+*.log
+
+# Uploaded files
+files/
+*.xls
+*.xlsx
+
+# Build artifacts
+bot
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test files
+*.test
+*.out
+
+# Dependencies
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+docs/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Misc
+*.md
+LICENSE
+
