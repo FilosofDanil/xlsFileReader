@@ -22,21 +22,32 @@ Add your screenshots here and keep these paths:
 - `docs/screenshots/script-result.png`
 
 ### Run locally
-1. Put your Telegram token in `cmd/main.go` (`TelegramBotToken` constant).
-2. Install dependencies:
+1. Create a `.env` file from the example:
+
+```bash
+copy .env.example .env
+```
+
+2. Add your Telegram bot token to the `.env` file:
+
+```
+TELEGRAM_BOT_TOKEN=your_actual_bot_token_here
+```
+
+3. Install dependencies:
 
 ```bash
 go mod tidy
 ```
 
-3. Run:
+4. Run:
 
 ```bash
 go run ./cmd/main.go
 ```
 
 ### Run with Docker
-1. Put your Telegram token in `cmd/main.go`.
+1. Create a `.env` file with your bot token (see "Run locally" section).
 2. Start:
 
 ```bash
@@ -72,21 +83,32 @@ Empfohlene Pfade:
 - `docs/screenshots/script-result.png`
 
 ### Lokal starten
-1. Telegram-Token in `cmd/main.go` setzen (`TelegramBotToken`).
-2. Abhängigkeiten:
+1. `.env`-Datei erstellen:
+
+```bash
+copy .env.example .env
+```
+
+2. Telegram-Token in der `.env`-Datei setzen:
+
+```
+TELEGRAM_BOT_TOKEN=your_actual_bot_token_here
+```
+
+3. Abhängigkeiten:
 
 ```bash
 go mod tidy
 ```
 
-3. Starten:
+4. Starten:
 
 ```bash
 go run ./cmd/main.go
 ```
 
 ### Mit Docker starten
-1. Telegram-Token in `cmd/main.go` setzen.
+1. `.env`-Datei mit Token erstellen (siehe "Lokal starten").
 2. Start:
 
 ```bash
@@ -116,21 +138,32 @@ docker-compose up -d --build
 - `docs/screenshots/script-result.png`
 
 ### Запуск локально
-1. Вкажіть Telegram token у `cmd/main.go` (константа `TelegramBotToken`).
-2. Встановіть залежності:
+1. Створіть файл `.env` з прикладу:
+
+```bash
+copy .env.example .env
+```
+
+2. Додайте ваш Telegram токен у файл `.env`:
+
+```
+TELEGRAM_BOT_TOKEN=ваш_токен_бота
+```
+
+3. Встановіть залежності:
 
 ```bash
 go mod tidy
 ```
 
-3. Запустіть:
+4. Запустіть:
 
 ```bash
 go run ./cmd/main.go
 ```
 
 ### Запуск через Docker
-1. Вкажіть Telegram token у `cmd/main.go`.
+1. Створіть файл `.env` з токеном (див. розділ "Запуск локально").
 2. Запуск:
 
 ```bash

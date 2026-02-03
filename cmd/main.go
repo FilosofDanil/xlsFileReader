@@ -9,18 +9,26 @@ import (
 )
 
 const (
-	TelegramBotToken = ""
-	MaxRetries       = 3
-	RetryDelay       = 15 * time.Second
+	MaxRetries = 3
+	RetryDelay = 15 * time.Second
 )
 
 func main() {
 	logger.Init()
 	log.Println("Application starting...")
 
+	// Load environment variables from .env file
+	bot.LoadEnv()
+
+	// Get bot token from environment
+	telegramBotToken := bot.GetBotToken()
+	if telegramBotToken == "" {
+		log.Fatal("TELEGRAM_BOT_TOKEN is required but not set")
+	}
+
 	stopChan := make(chan struct{})
 
-	go supervisor(stopChan)
+	go supervisor(stopChan, telegramBotToken)
 
 	select {
 	case <-stopChan:
@@ -28,14 +36,14 @@ func main() {
 	}
 }
 
-func supervisor(stopChan chan<- struct{}) {
+func supervisor(stopChan chan<- struct{}, token string) {
 	statusChan := make(chan bot.BotStatus, 10)
 	failureCount := 0
 
 	for {
 		log.Printf("Launch attempt %d/%d", failureCount+1, MaxRetries)
 
-		botService := bot.NewService(TelegramBotToken, statusChan)
+		botService := bot.NewService(token, statusChan)
 		messageHandler := handler.NewHandler()
 
 		go func() {

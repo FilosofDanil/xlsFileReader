@@ -13,10 +13,15 @@ services:
       - ./files:/app/files
       - ./logs:/app/logs
       - ./log:/app/log
+      - ./.env:/app/.env:ro
     
     # Environment variables (optional - can override in .env file)
     environment:
       - TZ=Europe/Kiev
+    
+    # Load environment variables from .env file
+    env_file:
+      - .env
     
     # Resource limits (optional)
     deploy:
