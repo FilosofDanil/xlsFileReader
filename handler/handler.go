@@ -294,7 +294,7 @@ func (h *Handler) readXlsFile(filePath string) (string, error) {
 						secondValue := row.Col(colIndex + 2)
 						combined := firstValue + "-" + secondValue
 						results = append(results, combined)
-						log.Printf("Found match in sheet %s: %s", sheet.Name, combined)
+						log.Printf("Found match in sheet %d, %s: %s", colIndex, sheet.Name, combined)
 					}
 					break
 				}
@@ -357,7 +357,7 @@ func (h *Handler) generateSQLScript(contracts []string) string {
 		if index > 0 {
 			sql.WriteString(",\n")
 		}
-		sql.WriteString(fmt.Sprintf("        ('EP-%s', %d)", contract, index))
+		sql.WriteString(fmt.Sprintf("        ('%s', %d)", contract, index))
 	}
 
 	// Closing SQL
